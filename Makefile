@@ -13,5 +13,5 @@ $(dir):
 	mkdir $(dir)
 $(dir)/%.so: %.c $(dir)
 	$(CC) -fPIC -shared -o $@ $(CFLAGS) $(LDFLAGS) $< $(LDLIBS)
-immodules.cache: $(dir)/charmode.so
+immodules.cache: $(dir)/autocharmode.so
 	gtk-query-immodules-3.0 $< > $@

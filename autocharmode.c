@@ -24,11 +24,11 @@ GType type = 0;
 typedef struct {
   GtkIMContextSimple parent;
   Window window;
-} CharModeContext;
+} AutoCharModeContext;
 
 static void toggle(const gchar *action, GtkIMContext *context) {
   gchar *s = g_strdup_printf("emacsclient -eu (exwm-input-%s-keyboard#x%lx)",
-                             action, ((CharModeContext *)context)->window);
+                             action, ((AutoCharModeContext *)context)->window);
   g_spawn_command_line_sync(s, NULL, NULL, NULL, NULL);
   g_free(s);
 }
@@ -42,7 +42,7 @@ static void focus_out(GtkIMContext *context) {
 }
 
 static void set_client_window(GtkIMContext *context, GdkWindow *window) {
-  CharModeContext *sub = (CharModeContext *)context;
+  AutoCharModeContext *sub = (AutoCharModeContext *)context;
 
   sub->window = window == NULL ? 0 : gdk_x11_window_get_xid(window);
 }
@@ -56,10 +56,10 @@ static void init(gpointer g_class) {
 G_MODULE_EXPORT
 void im_module_init(GTypeModule *module) {
   static const GTypeInfo info = { .class_size = sizeof(GtkIMContextSimpleClass),
-    .base_init = init, .instance_size = sizeof(CharModeContext) };
+    .base_init = init, .instance_size = sizeof(AutoCharModeContext) };
 
   type = g_type_module_register_type(module, GTK_TYPE_IM_CONTEXT_SIMPLE,
-                                     "CharModeContext", &info, 0);
+                                     "AutoCharModeContext", &info, 0);
 }
 
 G_MODULE_EXPORT
@@ -68,7 +68,7 @@ void im_module_exit(void) {
 
 G_MODULE_EXPORT
 void im_module_list(const GtkIMContextInfo ***contexts, int *n_contexts) {
-  static const GtkIMContextInfo info = {"charmode", "Toggle EXWM char-mode",
+  static const GtkIMContextInfo info = {"autocharmode", "Toggle EXWM char-mode",
                                         "", "", ""},
     *info_list[] = { &info };
 
@@ -78,5 +78,7 @@ void im_module_list(const GtkIMContextInfo ***contexts, int *n_contexts) {
 
 G_MODULE_EXPORT
 GtkIMContext *im_module_create(const gchar *context_id) {
-  return g_strcmp0(context_id, "charmode") ? NULL : g_object_new(type, NULL);
+  if (g_strcmp0(context_id, "autocharmode") == 0)
+    return g_object_new(type, NULL);
+  return NULL;
 }

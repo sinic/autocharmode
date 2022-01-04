@@ -38,7 +38,7 @@ Now it is hardly ever necessary to toggle input modes manually!
    start Firefox (or any other GTK 3 application of your choice)
    so that it uses the new input method module, adapt the path as necessary:
 ```
-GTK_IM_MODULE_FILE=$HOME/charmode/immodules.cache GTK_IM_MODULE=charmode firefox
+GTK_IM_MODULE_FILE=$HOME/autocharmode/immodules.cache GTK_IM_MODULE=autocharmode firefox
 ```
 
 3. Confirm that the input mode toggles automatically,
