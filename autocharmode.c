@@ -44,7 +44,12 @@ static void focus_out(GtkIMContext *context) {
 static void set_client_window(GtkIMContext *context, GdkWindow *window) {
   AutoCharModeContext *sub = (AutoCharModeContext *)context;
 
-  sub->window = window == NULL ? 0 : gdk_x11_window_get_xid(window);
+  if (window == NULL)
+    sub->window = 0;
+  else {
+    GdkWindow *toplevel = gdk_window_get_effective_toplevel(window);
+    sub->window = gdk_x11_window_get_xid(toplevel);
+  }
 }
 
 static void init(gpointer g_class) {
