@@ -23,14 +23,19 @@ GType type = 0;
 
 typedef struct {
   GtkIMContextSimple parent;
-  Window window;
+  GdkWindow *window;
 } AutoCharModeContext;
 
 static void toggle(const gchar *action, GtkIMContext *context) {
-  gchar *s = g_strdup_printf("emacsclient -eu (exwm-input-%s-keyboard#x%lx)",
-                             action, ((AutoCharModeContext *)context)->window);
-  g_spawn_command_line_sync(s, NULL, NULL, NULL, NULL);
-  g_free(s);
+  GdkWindow *window = ((AutoCharModeContext *)context)->window;
+
+  if (window != NULL) {
+    int id = gdk_x11_window_get_xid(gdk_window_get_effective_toplevel(window));
+    gchar *s = g_strdup_printf("emacsclient -eu (exwm-input-%s-keyboard#x%lx)",
+                               action, id);
+    g_spawn_command_line_sync(s, NULL, NULL, NULL, NULL);
+    g_free(s);
+  }
 }
 
 static void focus_in(GtkIMContext *context) {
@@ -44,12 +49,7 @@ static void focus_out(GtkIMContext *context) {
 static void set_client_window(GtkIMContext *context, GdkWindow *window) {
   AutoCharModeContext *sub = (AutoCharModeContext *)context;
 
-  if (window == NULL)
-    sub->window = 0;
-  else {
-    GdkWindow *toplevel = gdk_window_get_effective_toplevel(window);
-    sub->window = gdk_x11_window_get_xid(toplevel);
-  }
+  sub->window = window;
 }
 
 static void init(gpointer g_class) {
